@@ -1,0 +1,68 @@
+<div>
+  <h1>Todo App - Legacy Control Flow</h1>
+
+  <div class="controls">
+    <input [(ngModel)]="newTodo" placeholder="Add new task" />
+    <button (click)="addTodo()">Add</button>
+    <button (click)="generateSampleTodos(300)" style="margin-left: 10px;">Add 300 Todos</button>
+    <p *ngIf="newTodo.length > 20" style="color: orange;">Description is quite long</p>
+  </div>
+
+  <div class="filters">
+    <h3>Filter Tasks:</h3>
+    <label *ngFor="let option of ['all', 'completed', 'pending']">
+      <input type="radio" name="filter" [value]="option" [(ngModel)]="filter" /> {{ option }}
+    </label>
+  </div>
+
+  <div class="view-switch">
+    <button (click)="view = 'list'">📝 List View</button>
+    <button (click)="view = 'stats'">📊 Stats View</button>
+  </div>
+
+  <div [ngSwitch]="view">
+    <div *ngSwitchCase="'list'" class="todo-list">
+      <div *ngIf="filteredTodos().length > 10" class="alert">⚠ Too many tasks, consider completing some!</div>
+
+      <section>
+        <h3>Pending Tasks</h3>
+        <ul>
+          <ng-container *ngFor="let todo of filteredTodos()">
+            <li *ngIf="!todo.completed">
+              {{ todo.text }}
+              <button (click)="toggleComplete(todo.id)">✔</button>
+              <button (click)="deleteTodo(todo.id)">✖</button>
+            </li>
+          </ng-container>
+        </ul>
+        <p *ngIf="pendingFilteredCount() === 0">🎉 All caught up!</p>
+      </section>
+
+      <section>
+        <h3>Completed Tasks</h3>
+        <ul>
+          <ng-container *ngFor="let todo of filteredTodos()">
+            <li *ngIf="todo.completed">
+              <span style="text-decoration: line-through">{{ todo.text }}</span>
+              <button (click)="toggleComplete(todo.id)">⏪</button>
+              <button (click)="deleteTodo(todo.id)">🗑</button>
+            </li>
+          </ng-container>
+        </ul>
+        <p *ngIf="completedFilteredCount() === 0">No completed tasks yet.</p>
+      </section>
+
+      <section *ngIf="todos.length > 0">
+        <h4>🆕 Recently Added:</h4>
+        <p>{{ todos[todos.length - 1].text }}</p>
+      </section>
+    </div>
+
+    <div *ngSwitchCase="'stats'" class="stats">
+      <h3>📈 Task Summary</h3>
+      <p>Total Tasks: <span class="badge">{{ todos.length }}</span></p>
+      <p>Completed: <span class="badge badge-green">{{ completedCount() }}</span></p>
+      <p>Pending: <span class="badge badge-red">{{ pendingCount() }}</span></p>
+    </div>
+  </div>
+</div>
